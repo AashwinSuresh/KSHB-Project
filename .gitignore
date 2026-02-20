@@ -1,0 +1,20 @@
+# Virtual Environment
+paddle_env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Paddle model downloads
+.paddleocr/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Output folders
+output/
+inference_results/
