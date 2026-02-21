@@ -3,7 +3,7 @@ from paddleocr import PaddleOCR
 # Initialize OCR
 ocr = PaddleOCR(use_angle_cls=True, lang='en',use_gpu=False)
 
-img_path = r"C:\@KHSB\sample\test_images\test02.png"
+img_path = r"C:\@KHSB\sample\test_images\final_real_test01.jpeg"
 
 # Run OCR
 result = ocr.ocr(img_path, cls=True)
