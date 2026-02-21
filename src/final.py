@@ -2,15 +2,20 @@ import cv2
 import numpy as np
 import re
 from paddleocr import PaddleOCR
+from fuzzy_classifier import classify_letter
+import os
+import shutil
+
 
 
 # ---------------------------------------------------
 # IMAGE PATH
 # ---------------------------------------------------
-# img_path = r"C:\@KHSB\sample\test_images\test_secretary.png"
-img_path = r"C:\@KHSB\sample\test_images\test_chairperson.png"
-# img_path = r"C:\@KHSB\sample\test_images\test_chief_engineer.png"
 
+# img_path = r"C:\@KHSB\sample\test_images\test_secretary.png"
+# img_path = r"C:\@KHSB\sample\test_images\test_chairperson.png"
+# img_path = r"C:\@KHSB\sample\test_images\test_chief_engineer.png"
+img_path = r"C:\@KHSB\sample\test_images\final_real_test01.jpeg"
 
 # ---------------------------------------------------
 # IMAGE PREPROCESSING FUNCTION
@@ -99,25 +104,31 @@ def extract_to_section(result, height_ratio=0.45):
 
     return to_section
 
+
 # ---------------------------------------------------
-# CLASSIFICATION FUNCTION
+# SAVE IMAGE INTO CLASSIFIED FOLDER
 # ---------------------------------------------------
-def classify_letter(text):
-    text = text.lower()
 
-    if re.search(r"chief\s*engineer", text):
-        return "chief_engineer"
+def save_to_classified_folder(image_path, category):
+    # Base directory (project root)
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    elif re.search(r"secretary", text):
-        return "secretary"
+    # Create main classified folder
+    classified_dir = os.path.join(base_dir, "classified")
 
-    elif re.search(r"chair\s*person", text):
-        return "chair_person"
+    # Create category folder inside classified
+    category_dir = os.path.join(classified_dir, category)
 
-    else:
-        return "errroorrrrr........"
+    # Create folders if they don't exist
+    os.makedirs(category_dir, exist_ok=True)
 
+    # Copy image to category folder
+    image_name = os.path.basename(image_path)
+    destination_path = os.path.join(category_dir, image_name)
 
+    shutil.copy2(image_path, destination_path)
+
+    print("\nImage saved to:", destination_path)
 # ---------------------------------------------------
 # OCR INITIALIZATION
 # ---------------------------------------------------
@@ -182,7 +193,11 @@ print(to_section_text)
 # ---------------------------------------------------
 category = classify_letter(to_section_text)
 
+# Call the function
+save_to_classified_folder(img_path, category)
+
+
 print("\n" + "=" * 40)
 print("CLASSIFICATION RESULT")
 print("=" * 40)
-print("Category:", category)
+print("image is classified as : ", category)
