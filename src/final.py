@@ -15,7 +15,9 @@ import shutil
 # img_path = r"C:\@KHSB\sample\test_images\test_secretary.png"
 # img_path = r"C:\@KHSB\sample\test_images\test_chairperson.png"
 # img_path = r"C:\@KHSB\sample\test_images\test_chief_engineer.png"
-img_path = r"C:\@KHSB\sample\test_images\final_real_test01.jpeg"
+# img_path = r"C:\@KHSB\sample\test_images\final_secretary01.jpg"
+img_path = r"C:\@KHSB\sample\test_images\final_secretary02.jpg"
+
 
 # ---------------------------------------------------
 # IMAGE PREPROCESSING FUNCTION
