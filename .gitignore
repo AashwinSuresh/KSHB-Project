@@ -1,21 +1,6 @@
 # Virtual Environment
-paddle_env/
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-
-# Paddle model downloads
-.paddleocr/
-
-# VS Code
-.vscode/
-
-# Logs
-*.log
-
-# Output folders
-output/
-inference_results/
-classified/
+venv/
+temp/
+model/dla-model.pt
+model/yolov8s.pt
+.env 
