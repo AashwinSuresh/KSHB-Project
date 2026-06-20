@@ -3,7 +3,6 @@ import cv2
 from ultralytics import YOLO
 
 MODEL_PATH = "model/dla-model.pt"
-
 DETECTION_MODEL = YOLO(MODEL_PATH)
 
 ENTITIES_COLORS = {
@@ -20,14 +19,19 @@ ENTITIES_COLORS = {
     "Title": (196, 51, 2)
 }
 
-VALID_CLASSES = [
-    "Text",
-    "Section-header"
+HEADER_ANCHOR_CLASSES = [
+    "List-item", 
+    "From", 
+    "Title", 
+    "Page-header"
 ]
 
 
-def process_image(image_path):
-
+def process_image(image_path, buffer_px=60):
+    """Processes the image and crops the header metadata with relaxed padding.
+    
+    buffer_px: Increased default from 15 to 60 to prevent tight/partial cuts.
+    """
     image = cv2.imread(image_path)
 
     if image is None:
@@ -46,15 +50,19 @@ def process_image(image_path):
 
     boxes = results[0].boxes
 
-    selected_boxes = []
+    max_y_header = 0
+    header_found = False
+    body_boxes = []
+
+    class_names = list(ENTITIES_COLORS.keys())
 
     for box in boxes:
-
-        cls = list(ENTITIES_COLORS)[int(box.cls)]
+        cls_idx = int(box.cls)
+        cls = class_names[cls_idx]
 
         x1, y1, x2, y2 = map(int, box.xyxy[0])
 
-        # Draw box
+        # Draw tracking bounding boxes
         cv2.rectangle(
             boxed_image,
             (x1, y1),
@@ -73,30 +81,31 @@ def process_image(image_path):
             2
         )
 
-        # Ignore lower 30%
-        if y1 > h * 0.7:
-            continue
+        # Track header elements
+        if cls in HEADER_ANCHOR_CLASSES:
+            if y2 > max_y_header:
+                max_y_header = y2
+                header_found = True
+        
+        if cls in ["Text", "Section-header"]:
+            body_boxes.append((x1, y1, x2, y2))
 
-        if cls in VALID_CLASSES:
-            selected_boxes.append(
-                (x1, y1, x2, y2)
-            )
+    # Calculate the relaxed cutoff line
+    if header_found:
+        # Added a larger pixel buffer to fully clear the "To" address section comfortably
+        cutoff_y = min(max_y_header + buffer_px, h)
+    elif body_boxes:
+        body_boxes.sort(key=lambda b: (b[2] - b[0]) * (b[3] - b[1]), reverse=True)
+        largest_body_ymin = body_boxes[0][1]
+        # Fallback cuts slightly higher above the body text block to leave white space
+        cutoff_y = max(0, largest_body_ymin - 20)
+    else:
+        cutoff_y = int(h * 0.50)
 
-    if len(selected_boxes) == 0:
-        return original_image, boxed_image, original_image
-
-    min_x = min(box[0] for box in selected_boxes)
-    min_y = min(box[1] for box in selected_boxes)
-    max_x = max(box[2] for box in selected_boxes)
-    max_y = max(box[3] for box in selected_boxes)
-
-    cropped = image[min_y:max_y, min_x:max_x]
+    # Perform the clean, spacious horizontal crop
+    cropped = image[0:cutoff_y, 0:w]
 
     os.makedirs("temp", exist_ok=True)
-
-    cv2.imwrite(
-        "temp/cropped_region.jpg",
-        cropped
-    )
+    cv2.imwrite("temp/cropped_region.jpg", cropped)
 
     return original_image, boxed_image, cropped

@@ -3,6 +3,7 @@ venv/
 temp/
 model/dla-model.pt
 model/yolov8s.pt
-_pycache_/
+__pycache__/
 .env 
 .gradio/
+hand_written/
