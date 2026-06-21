@@ -1,7 +1,7 @@
 import gradio as gr
 
 from cropper import process_image
-from gemini_extractor import extract_designation
+from extractor import extract_designation
 from classifier import save_to_folders
 
 
