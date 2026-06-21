@@ -35,37 +35,42 @@ def extract_designation(image_path):
     prompt = """
 This image contains a Malayalam official letter.
 
-Identify the designation of the person to whom the letter is addressed.
+Identify the receiver(s) of the letter.
 
-Translate the designation into English.
+Classify each receiver into one or more of the following categories:
+
+Chief Engineer
+Chairman
+Secretary
 
 Rules:
-- Return ONLY the designation.
-- Do NOT include explanations.
-- Do NOT include bullet points.
-- Do NOT include labels.
-- Do NOT include extra text.
+- Return only the category names.
+- If there are multiple receivers, return each category on a separate line.
+- Do not include explanations.
+- Do not include bullet points.
+- Do not include numbering.
+- Do not include labels.
+- Do not use markdown.
 
 Examples:
 
-Class Teacher
-
-Executive Engineer
-
-Secretary
-
-Assistant Professor
-
-Junior Superintendent
+Chief Engineer
 
 Chairman
 
-Village Officer
+Secretary
 
-If the designation cannot be identified, return:
+Chief Engineer
+Chairman
+
+Chairman
+Secretary
+
+If none of the receivers belong to these categories, return:
 
 Unknown
 """
+
 
     try:
         response = client.models.generate_content(

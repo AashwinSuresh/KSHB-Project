@@ -1,6 +1,8 @@
 import gradio as gr
+
 from cropper import process_image
 from gemini_extractor import extract_designation
+from classifier import save_to_folders
 
 
 def analyze_document(image_path):
@@ -15,26 +17,41 @@ def analyze_document(image_path):
             ↓
     Gemini Vision
             ↓
-    Extract Designation
+    Extract Receiver Category
+            ↓
+    Save Letter Into Corresponding Folder(s)
     """
 
     try:
 
-        # Run layout analysis and cropping
+        # Perform layout analysis and cropping
         original_image, boxed_image, cropped_image = process_image(
             image_path
         )
 
-        # Extract designation from cropped image
+        # Extract designation(s) from cropped image
         designation = extract_designation(
             "temp/cropped_region.jpg"
+        )
+
+        # Save the original letter into all matching folders
+        folders = save_to_folders(
+            image_path,
+            designation
+        )
+
+        result_text = (
+            f"Designation(s):\n"
+            f"{designation}\n\n"
+            f"Saved to folder(s):\n"
+            f"{', '.join(folders)}"
         )
 
         return (
             original_image,
             boxed_image,
             cropped_image,
-            designation
+            result_text
         )
 
     except Exception as e:
@@ -59,7 +76,7 @@ iface = gr.Interface(
         gr.Image(label="Original Image"),
         gr.Image(label="Layout Detection"),
         gr.Image(label="Cropped Region"),
-        gr.Textbox(label="Designation")
+        gr.Textbox(label="Classification Result")
     ],
 
     title="KSHB Malayalam Letter Classification",
@@ -69,9 +86,15 @@ iface = gr.Interface(
 2. Perform document layout analysis using YOLO.
 3. Crop the important region.
 4. Send only the cropped image to Gemini Vision.
-5. Extract the receiver's designation.
+5. Identify whether the receiver(s) are:
+   - Chief Engineer
+   - Chairman
+   - Secretary
+6. Automatically create folders if needed.
+7. Save the original letter into all matching folders.
 """
 )
+
 
 if __name__ == "__main__":
     iface.launch(share=True)
