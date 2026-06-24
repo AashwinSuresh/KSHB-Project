@@ -7,6 +7,8 @@ __pycache__/
 .gradio/
 hand_written/
 classified/
+.dockerignore
+Dockerfile
 
 
 
